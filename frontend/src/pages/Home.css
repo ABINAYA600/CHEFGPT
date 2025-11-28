@@ -1,0 +1,112 @@
+/* Full-screen container */
+.home-container {
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(160deg, #1a0b2e, #0b0a14);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+/* Floating particles */
+.particle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: radial-gradient(circle, #d8bbff, #a463ff);
+  opacity: 0.45;
+  border-radius: 50%;
+  filter: blur(1px);
+  animation: floatUp 8s infinite linear;
+}
+
+@keyframes floatUp {
+  from { transform: translateY(50vh); opacity: 0; }
+  40% { opacity: 0.8; }
+  to { transform: translateY(-50vh); opacity: 0; }
+}
+
+/* Center content */
+.home-content {
+  position: relative;
+  text-align: center;
+  z-index: 10;
+  padding: 20px;
+  max-width: 600px;
+}
+
+.home-title {
+  font-size: 3.5rem;
+  font-weight: 800;
+  color: #c08aff;
+  text-shadow: 0 0 25px rgba(192,138,255,0.7);
+}
+
+.home-desc {
+  margin-top: 15px;
+  font-size: 1.25rem;
+  opacity: 0.85;
+  line-height: 1.6rem;
+}
+
+/* Buttons Section */
+.home-btn-area {
+  margin-top: 28px;
+  display: flex;
+  gap: 18px;
+  justify-content: center;
+}
+
+/* Outline button */
+.home-btn {
+  padding: 10px 25px;
+  border-radius: 20px;
+  color: #dcbcff;
+  border: 2px solid #c08aff;
+  background: transparent;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.home-btn:hover {
+  background: rgba(192,138,255,0.15);
+  transform: translateY(-2px);
+}
+
+/* Filled button */
+.home-btn-filled {
+  padding: 10px 25px;
+  border-radius: 20px;
+  background: linear-gradient(90deg, #a463ff, #c08aff);
+  border: none;
+  color: #0b0a14;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(192,138,255,0.6);
+  transition: 0.3s;
+}
+
+.home-btn-filled:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 20px rgba(192,138,255,0.9);
+}
+
+/* Bottom wave animation */
+.wave {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 200%;
+  height: 120px;
+  background: radial-gradient(circle at 50% 10%, #45256c, transparent 70%);
+  animation: waveMove 7s infinite linear;
+  opacity: 0.3;
+}
+
+@keyframes waveMove {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}

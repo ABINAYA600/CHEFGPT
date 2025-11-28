@@ -1,0 +1,90 @@
+/* ------------------------------------
+   AUTH PAGE BACKGROUND
+------------------------------------- */
+.auth-page {
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: radial-gradient(circle at 50% 0%, #2a1b3d 20%, #0b0a14 80%);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Particles */
+.particle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: radial-gradient(circle, #e1c9ff, #a463ff);
+  border-radius: 50%;
+  opacity: 0.3;
+  animation: floatUp 6s linear infinite;
+  filter: blur(0.4px);
+}
+
+@keyframes floatUp {
+  from { transform: translateY(40vh); opacity: 0; }
+  50% { opacity: 0.7; }
+  to { transform: translateY(-40vh); opacity: 0; }
+}
+
+/* ------------------------------------
+   AUTH FORM CARD
+------------------------------------- */
+.auth-card {
+  width: 360px;              /* Smaller, fits frame */
+  padding: 30px;
+  border-radius: 16px;
+
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255,255,255,0.15);
+  backdrop-filter: blur(16px);
+
+  box-shadow: 0 0 20px rgba(164, 99, 255, 0.25);
+  text-align: center;
+  position: relative;
+  z-index: 10;
+}
+
+.auth-card h2 {
+  color: #e9d5ff;
+  margin-bottom: 20px;
+  text-shadow: 0 0 10px rgba(195, 150, 255, 0.5);
+}
+
+/* Inputs */
+.auth-card input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  margin-bottom: 15px;
+  outline: none;
+  font-size: 1rem;
+}
+
+/* Submit button */
+.auth-card button {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+
+  background: linear-gradient(90deg, #a463ff, #c08aff);
+  color: #0b0a14;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: 0.25s;
+}
+
+.auth-card button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 10px rgba(164,99,255,0.7);
+}

@@ -1,0 +1,77 @@
+/* =======================================
+   UNIVERSAL PAGE WRAPPER
+========================================== */
+.page-container {
+  padding: 30px;
+  color: white;
+  background: #0b0a14;
+  min-height: 100vh;
+}
+
+/* Headings */
+.page-container h2 {
+  margin-bottom: 20px;
+  color: #dcbfff;
+}
+
+/* =======================================
+   GRID CARDS (Cuisines, Saved Recipes)
+========================================== */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background: rgba(255,255,255,0.08);
+  padding: 20px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  background: rgba(255,255,255,0.12);
+}
+
+/* =======================================
+   TEXT AREAS & INPUTS
+========================================== */
+.page-container input,
+.page-container textarea {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 18px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.10);
+  color: white;
+  border: none;
+  outline: none;
+  resize: vertical;
+}
+
+/* Buttons */
+.page-container button {
+  padding: 12px 20px;
+  background: linear-gradient(90deg, #a463ff, #c08aff);
+  border: none;
+  border-radius: 10px;
+  color: #0b0a14;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.page-container button:hover {
+  transform: scale(1.05);
+}
+
+/* Reply box for Doubts */
+.reply-box {
+  background: rgba(255,255,255,0.08);
+  padding: 16px;
+  border-radius: 8px;
+  margin-top: 15px;
+}

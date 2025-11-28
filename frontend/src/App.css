@@ -1,0 +1,17 @@
+:root {
+  --primary: #a463ff;
+  --secondary: #c08aff;
+  --bg: #0b0a14;
+  --glass: rgba(255, 255, 255, 0.06);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --soft-text: #bdb4c9;
+}
+h1, h2 {
+  color: var(--secondary) !important;
+  text-shadow: 0 0 18px rgba(192, 138, 255, 0.55);
+}
+
+p {
+  color: #d2c8ef !important;
+}
+

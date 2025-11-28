@@ -1,0 +1,153 @@
+/* FULL HEIGHT SIDEBAR */
+.sidebar {
+  width: 260px;
+  height: 100vh;
+  background: linear-gradient(180deg, #18072b, #0b0518);
+  color: white;
+  padding: 20px 15px;
+  position: fixed;
+  left: 0;
+  top: 0;
+  overflow-y: auto;
+  border-right: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+/* Logo */
+.side-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 25px;
+}
+
+.side-logo {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+}
+
+/* NAVIGATION */
+.nav-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 20px;
+}
+
+.nav-list li {
+  margin: 18px 0;
+}
+
+.nav-list li a {
+  color: #e2d5ff;
+  text-decoration: none;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border-radius: 10px;
+  transition: 0.3s;
+}
+
+.nav-list li a:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #d6b3ff;
+}
+
+/* Collapse Icon */
+.sidebar-toggle {
+  margin-top: 10px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: white;
+  font-size: 20px;
+}
+
+/* PROFILE SECTION */
+/* PROFILE SECTION (Bottom-left inside sidebar) */
+.sidebar-profile {
+  position: absolute;
+  bottom: 25px;
+  left: 20px;     /* <-- FIX: keeps icon inside sidebar */
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* FIXED PROFILE ICON */
+.sidebar-profile-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(90deg, #a463ff, #c08aff);
+  color: #0b0a14;
+  font-size: 1.3rem;
+  font-weight: 700;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+
+  box-shadow: 0 0 16px rgba(164, 99, 255, 0.8);
+  transition: 0.2s ease;
+}
+
+/* DROPDOWN MENU RIGHT BESIDE ICON */
+.sidebar-profile-menu {
+  position: absolute;
+  bottom: 60px;
+  left: 20px; /* align with profile icon */
+
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(14px);
+  padding: 12px 14px;
+  width: 150px;
+  border-radius: 12px;
+
+  border: 1px solid rgba(255,255,255,0.18);
+  box-shadow: 0 0 18px rgba(164, 99, 255, 0.5);
+}
+
+.sidebar-profile-icon:hover {
+  transform: scale(1.1);
+}
+
+/* DROPDOWN MENU */
+.sidebar-profile-menu {
+  position: absolute;
+  bottom: 65px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(14px);
+  padding: 12px;
+  width: 150px;
+  border-radius: 12px;
+
+  border: 1px solid rgba(255,255,255,0.18);
+  box-shadow: 0 0 20px rgba(164, 99, 255, 0.5);
+}
+
+.sidebar-profile-menu p {
+  margin: 0;
+  padding: 10px;
+  cursor: pointer;
+  color: #f5e9ff;
+  border-radius: 8px;
+  transition: 0.25s;
+}
+
+.sidebar-profile-menu p:hover {
+  background: rgba(164, 99, 255, 0.35);
+}
+
+/* WHEN SIDEBAR IS COLLAPSED */
+.sidebar.collapsed .sidebar-profile-menu {
+  right: -160px;
+  width: 150px;
+}
+
+.collapsed-menu {
+  left: 65px;
+  bottom: 10px;
+}

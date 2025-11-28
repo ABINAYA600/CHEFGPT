@@ -1,0 +1,100 @@
+.planner-page {
+  width: 100%;
+  min-height: 100vh;
+  background: #0c0a1a;
+  color: white;
+  padding: 20px;
+}
+
+.planner-title {
+  font-size: 40px;
+  text-align: center;
+  font-weight: 800;
+  color: #d3baff;
+  margin-bottom: 25px;
+  text-shadow: 0px 0px 15px rgba(211, 186, 255, 0.7);
+}
+
+.planner-container {
+  width: 70%;
+  margin: auto;
+  background: #140f2e;
+  padding: 30px;
+  border-radius: 16px;
+  border: 1px solid #30285a;
+  box-shadow: 0px 0px 20px rgba(150, 90, 255, 0.4);
+}
+
+.planner-input-group {
+  margin-bottom: 20px;
+}
+
+.planner-input-group label {
+  font-size: 16px;
+  display: block;
+  margin-bottom: 8px;
+  color: #c9b7ff;
+}
+
+select,
+textarea {
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid #7a57ff;
+  background: #1b1536;
+  font-size: 15px;
+  color: #e8defc;
+}
+
+select:focus,
+textarea:focus {
+  border-color: #a78bfa;
+  outline: none;
+}
+
+.planner-btn {
+  width: 100%;
+  padding: 14px;
+  background: #8759ff;
+  border: 1px solid #cbb2ff;
+  border-radius: 12px;
+  color: white;
+  font-size: 17px;
+  cursor: pointer;
+  transition: 0.3s;
+  margin-top: 10px;
+}
+
+.planner-btn:hover {
+  background: #7249e4;
+}
+
+.planner-output {
+  margin-top: 25px;
+  background: #1b1530;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #a78bfa;
+}
+
+.planner-output pre {
+  white-space: pre-wrap;
+  line-height: 1.5;
+  color: #e8defc;
+}
+
+.save-plan-btn {
+  margin-top: 15px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: #28a745;
+  color: white;
+  font-size: 15px;
+  border: none;
+  cursor: pointer;
+}
+
+.save-plan-btn:hover {
+  background: #1e7e34;
+}

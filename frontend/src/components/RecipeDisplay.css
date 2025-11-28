@@ -1,0 +1,26 @@
+.recipe-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.save-btn {
+  padding: 8px 16px;
+  background: #a463ff;
+  border: none;
+  border-radius: 10px;
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.save-btn:hover {
+  background: #c08aff;
+}
+
+.saved-msg {
+  color: #baf7c3;
+  margin-bottom: 10px;
+  font-weight: bold;
+}

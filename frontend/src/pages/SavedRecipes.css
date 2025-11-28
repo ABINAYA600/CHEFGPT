@@ -1,0 +1,104 @@
+/* SavedRecipes.css */
+
+.saved-page {
+  padding: 40px;
+  margin-left: 260px;
+  min-height: 100vh;
+  color: white;
+  background: #100017;
+}
+
+.saved-title {
+  font-size: 38px;
+  text-align: center;
+  margin-bottom: 25px;
+  color: #d9b3ff;
+  text-shadow: 0 0 12px #b47bff;
+}
+
+.saved-search {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.1);
+  border: none;
+  color: white;
+  outline: none;
+  font-size: 16px;
+  margin-bottom: 30px;
+}
+
+.saved-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 25px;
+}
+
+.saved-card {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.15);
+  padding: 20px;
+  border-radius: 14px;
+  backdrop-filter: blur(8px);
+  transition: 0.3s;
+}
+
+.saved-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+}
+
+.recipe-title {
+  font-size: 22px;
+  font-weight: bold;
+  color: #e6caff;
+  margin-bottom: 10px;
+}
+
+.expand-btn {
+  margin-bottom: 10px;
+  padding: 8px 14px;
+  background: #a56bff;
+  border: none;
+  border-radius: 8px;
+  color: #2e004f;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.expand-btn:hover {
+  opacity: 0.85;
+}
+
+.recipe-full {
+  margin-top: 10px;
+}
+
+.recipe-text {
+  white-space: pre-wrap;
+  background: rgba(0,0,0,0.3);
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.delete-btn {
+  margin-top: 12px;
+  padding: 10px 16px;
+  background: #ff4c4c;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  width: 100%;
+  cursor: pointer;
+}
+
+.delete-btn:hover {
+  background: #ff2b2b;
+}
+
+.no-recipes {
+  text-align: center;
+  color: #ccc;
+  font-size: 18px;
+}

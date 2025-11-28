@@ -1,0 +1,91 @@
+/* PAGE WRAPPER — SHIFT RIGHT FOR SIDEBAR */
+.cuisine-page-wrapper {
+  margin-left: 260px; /* matches your sidebar width */
+  padding: 40px 30px;
+  color: #f2e9ff;
+  min-height: 100vh;
+}
+
+@media (max-width: 900px) {
+  .cuisine-page-wrapper {
+    margin-left: 0;
+    padding: 20px;
+  }
+}
+
+/* TITLE */
+.cuisine-title {
+  text-align: center;
+  font-size: 42px;
+  color: #e3c8ff;
+  margin-bottom: 20px;
+  text-shadow: 0 0 12px #a463ff;
+}
+
+/* SEARCH BAR */
+.cuisine-search {
+  width: 100%;
+  max-width: 650px;
+  margin: 0 auto 40px auto;
+  display: block;
+  padding: 14px 18px;
+  font-size: 16px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 12px;
+  color: #f8ebff;
+  outline: none;
+  backdrop-filter: blur(6px);
+}
+
+.cuisine-search::placeholder {
+  color: #d6c2ff;
+}
+
+/* GRID LAYOUT */
+.cuisine-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 24px;
+}
+
+/* CARD */
+.cuisine-card {
+  background: rgba(255,255,255,0.05);
+  border-radius: 16px;
+  padding: 16px;
+  border: 1px solid rgba(255,255,255,0.12);
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+  text-align: center;
+  transition: 0.25s ease;
+}
+
+.cuisine-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+}
+
+/* CARD IMAGE */
+.cuisine-img {
+  width: 100%;
+  height: 190px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
+
+/* NAME */
+.cuisine-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 6px 0;
+}
+
+/* TAGLINE */
+.cuisine-tagline {
+  color: #d3c1ff;
+  font-size: 14px;
+  margin-bottom: 6px;
+}
