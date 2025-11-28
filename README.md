@@ -151,7 +151,7 @@ Protected routes use ProtectedLayout.js
 
 
 
-![Screenshot](./frontend/src/assets/app_preview.png)
+
 
 🗂️ GitHub Best Practices
 
