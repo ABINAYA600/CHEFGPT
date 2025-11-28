@@ -149,10 +149,6 @@ Token is stored in LocalStorage
 
 Protected routes use ProtectedLayout.js
 
-
-
-
-
 🗂️ GitHub Best Practices
 
 .env files are ignored
