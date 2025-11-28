@@ -149,9 +149,7 @@ Token is stored in LocalStorage
 
 Protected routes use ProtectedLayout.js
 
-📸 Screenshots (You can add later)
 
-Add your screenshots like this:
 
 ![Screenshot](./frontend/src/assets/app_preview.png)
 
