@@ -2,6 +2,11 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./CuisineDetail.css";
 
+// PDF Tools
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
+import { Download } from "lucide-react";
+
 export default function CuisineDetail() {
   const { state } = useLocation();
   const navigate = useNavigate();
@@ -25,6 +30,22 @@ export default function CuisineDetail() {
 
   const [searchResult, setSearchResult] = useState(null);
 
+  // ⭐ DOWNLOAD ONLY THE CARD AS PDF
+  const downloadCardPDF = async (cardId, fileName) => {
+    const element = document.getElementById(cardId);
+    if (!element) return alert("Card not found!");
+
+    const canvas = await html2canvas(element, { scale: 2 });
+    const img = canvas.toDataURL("image/png");
+    const pdf = new jsPDF("p", "mm", "a4");
+
+    const width = pdf.internal.pageSize.getWidth();
+    const height = (canvas.height * width) / canvas.width;
+
+    pdf.addImage(img, "PNG", 0, 0, width, height);
+    pdf.save(`${fileName}.pdf`);
+  };
+
   // Load trending dishes
   useEffect(() => {
     if (cuisine) loadTrending();
@@ -38,6 +59,7 @@ export default function CuisineDetail() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ cuisine: cuisine.name }),
       });
+
       const data = await res.json();
       setTrending(data.dishes || []);
     } finally {
@@ -45,7 +67,7 @@ export default function CuisineDetail() {
     }
   }
 
-  // Open recipe modal
+  // Modal fetch
   async function openModal(dish) {
     setModalOpen(true);
     setModalDish(dish);
@@ -61,25 +83,15 @@ export default function CuisineDetail() {
       const data = await res.json();
       setModalRecipe(data.recipe || "No recipe available");
     } catch {
-      setModalRecipe("Error fetching recipe.");
+      setModalRecipe("Error loading recipe.");
     }
 
     setModalLoading(false);
   }
 
-  // SAVE DISH + REDIRECT TO /saved
   async function saveDish(dish) {
     const token = localStorage.getItem("token");
-
-    if (!token) {
-      alert("Please login to save this recipe!");
-      return;
-    }
-
-    if (modalLoading) {
-      alert("Please wait, recipe is still loading...");
-      return;
-    }
+    if (!token) return alert("Please login first!");
 
     try {
       const res = await fetch("http://localhost:5000/api/recipes/save", {
@@ -91,32 +103,30 @@ export default function CuisineDetail() {
         body: JSON.stringify({
           title: dish.name,
           cuisine: cuisine.name,
-          fullRecipe: modalRecipe || "No recipe available",
+          fullRecipe: modalRecipe,
         }),
       });
 
       const data = await res.json();
-
       if (res.ok) {
-        alert("Recipe saved successfully!");
+        alert("Recipe saved!");
         navigate("/saved");
       } else {
-        alert("Failed to save recipe: " + (data.message || "Error"));
+        alert(data.message || "Error saving");
       }
     } catch {
-      alert("Error saving recipe.");
+      alert("Save failed.");
     }
   }
 
-  // Bottom Input Search
+  // Search input
   async function handleBottomSubmit() {
     if (!query.trim()) return;
 
     setBottomLoading(true);
     setBottomOutput("");
-    setSearchResult(null);
 
-    const isRecipe = ["recipe", "how to", "make", "prepare"].some((k) =>
+    const isRecipe = ["recipe", "how", "make", "prepare"].some((k) =>
       query.toLowerCase().includes(k)
     );
 
@@ -129,13 +139,11 @@ export default function CuisineDetail() {
         });
 
         const data = await res.json();
-        const fullRecipe = data.recipe || "No recipe found.";
-        const recipeTitle =
-          fullRecipe.split("\n")[0].replace(/[#*]/g, "").trim();
+        const full = data.recipe || "No recipe found";
 
         setSearchResult({
-          name: recipeTitle || "Generated Recipe",
-          full: fullRecipe,
+          name: full.split("\n")[0].replace(/[#*]/g, "").trim(),
+          full,
         });
       } else {
         const res = await fetch("http://localhost:5000/api/ai/cuisineDoubt", {
@@ -151,7 +159,7 @@ export default function CuisineDetail() {
         setBottomOutput(data.answer || "No answer found.");
       }
     } catch {
-      setBottomOutput("Error fetching response.");
+      setBottomOutput("Error.");
     }
 
     setBottomLoading(false);
@@ -161,15 +169,29 @@ export default function CuisineDetail() {
 
   return (
     <div className="cd-page">
-
       <div className="cd-container">
         <h1 className="cd-title">{cuisine.name} Cuisine</h1>
         <p className="cd-tag">{cuisine.tagline}</p>
 
-        {/* Search Result */}
+        {/* Search Result Card */}
         {searchResult && (
-          <div className="cd-card">
+          <div
+            className="cd-card"
+            id="search-card"
+            style={{ position: "relative" }}
+          >
+            {/* PDF icon */}
+            <button
+              className="recipe-download-icon"
+              onClick={() =>
+                downloadCardPDF("search-card", searchResult.name)
+              }
+            >
+              <Download size={18} />
+            </button>
+
             <h3 className="cd-dish-title">{searchResult.name}</h3>
+
             <div className="cd-actions">
               <button className="cd-open" onClick={() => openModal(searchResult)}>
                 Open
@@ -187,10 +209,23 @@ export default function CuisineDetail() {
         </div>
 
         <div className="cd-grid">
-          {trending.length === 0 && <p>No trending dishes.</p>}
-
           {trending.map((d, idx) => (
-            <div className="cd-card" key={idx}>
+            <div
+              className="cd-card"
+              id={`trend-card-${idx}`}
+              style={{ position: "relative" }}
+              key={idx}
+            >
+              {/* PDF Icon */}
+              <button
+                className="recipe-download-icon"
+                onClick={() =>
+                  downloadCardPDF(`trend-card-${idx}`, d.name)
+                }
+              >
+                <Download size={18} />
+              </button>
+
               <h3 className="cd-dish-title">{d.name}</h3>
               <p className="cd-desc">{d.description}</p>
 
@@ -204,15 +239,16 @@ export default function CuisineDetail() {
         </div>
       </div>
 
-      {/* Bottom Search */}
+      {/* Bottom Section */}
       <div className="cd-bottom">
         <div className="cd-bottom-row">
           <input
-            placeholder={`Ask a recipe or doubt about ${cuisine.name}…`}
+            placeholder={`Ask about ${cuisine.name}…`}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleBottomSubmit()}
           />
+
           <button className="cd-ask" onClick={handleBottomSubmit}>
             {bottomLoading ? "Thinking…" : "Ask ChefGPT"}
           </button>
@@ -225,11 +261,10 @@ export default function CuisineDetail() {
         )}
       </div>
 
-      {/* MODAL WITH SAVE BUTTON */}
+      {/* Modal */}
       {modalOpen && (
         <div className="cd-modal-bg" onClick={() => setModalOpen(false)}>
           <div className="cd-modal" onClick={(e) => e.stopPropagation()}>
-
             <h2 className="cd-modal-title">{modalDish?.name}</h2>
 
             {modalLoading ? (
@@ -240,18 +275,15 @@ export default function CuisineDetail() {
 
             <div className="cd-modal-buttons">
               <button className="cd-save" onClick={() => saveDish(modalDish)}>
-                Save Recipe
+                Save
               </button>
-
               <button className="cd-close" onClick={() => setModalOpen(false)}>
                 Close
               </button>
             </div>
-
           </div>
         </div>
       )}
-
     </div>
   );
 }

@@ -3,30 +3,44 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import "./Mealprep.css";
 
+// PDF tools
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
+import { Download } from "lucide-react";
+
 export default function MealPrep() {
   const [prompt, setPrompt] = useState("");
   const [recipe, setRecipe] = useState("");
   const [loading, setLoading] = useState(false);
-
   const [persons, setPersons] = useState(2);
-
   const [editingIngredients, setEditingIngredients] = useState(false);
   const [ingredientsList, setIngredientsList] = useState([]);
 
-  /* ------------------------------------------
-     SCALE BUTTONS 
-  ------------------------------------------- */
+  /* ------------ SERVINGS ------------ */
   const decrease = () => {
     if (persons > 1) setPersons(persons - 1);
   };
-
   const increase = () => {
     setPersons(persons + 1);
   };
 
-  /* ------------------------------------------
-     GENERATE RECIPE WITH SERVINGS SCALING (AI)
-  ------------------------------------------- */
+  /* ------------ DOWNLOAD CARD PDF ------------ */
+  async function downloadRecipeCardPDF() {
+    const element = document.getElementById("mealprep-card");
+    if (!element) return alert("Recipe card missing!");
+
+    const canvas = await html2canvas(element, { scale: 2 });
+    const img = canvas.toDataURL("image/png");
+    const pdf = new jsPDF("p", "mm", "a4");
+
+    const width = pdf.internal.pageSize.getWidth();
+    const height = (canvas.height * width) / canvas.width;
+
+    pdf.addImage(img, "PNG", 0, 0, width, height);
+    pdf.save(`${prompt || "mealprep-recipe"}.pdf`);
+  }
+
+  /* ------------ GENERATE RECIPE ------------ */
   async function generateRecipe() {
     if (!prompt.trim()) return alert("Enter a dish name");
 
@@ -39,7 +53,7 @@ export default function MealPrep() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           prompt,
-          servings: persons,       // ⭐ SEND SERVINGS TO BACKEND
+          servings: persons,
         }),
       });
 
@@ -48,7 +62,6 @@ export default function MealPrep() {
       if (data.success) {
         setRecipe(data.recipe);
 
-        // Extract ingredient lines
         const ing = data.recipe
           .split("\n")
           .filter((line) => line.trim().startsWith("-"));
@@ -61,9 +74,7 @@ export default function MealPrep() {
     setLoading(false);
   }
 
-  /* ------------------------------------------
-     SAVE RECIPE TO MONGODB
-  ------------------------------------------- */
+  /* ------------ SAVE RECIPE ------------ */
   async function saveRecipe() {
     if (!recipe) return alert("No recipe to save!");
 
@@ -89,9 +100,7 @@ export default function MealPrep() {
     }
   }
 
-  /* ------------------------------------------
-     SAVE INGREDIENT EDITING
-  ------------------------------------------- */
+  /* ------------ UPDATE INGREDIENTS ------------ */
   function saveEditedIngredients() {
     const updated = `
 ## 🥗 Ingredients
@@ -106,8 +115,7 @@ ${recipe.split("## 🧑‍🍳 Instructions")[1] || ""}
 
   return (
     <div className="mealprep-wrapper">
-
-      {/* ========= PARTICLES ========= */}
+      {/* Particles Animation */}
       <div className="mealprep-particles">
         {[...Array(25)].map((_, i) => (
           <div
@@ -123,17 +131,29 @@ ${recipe.split("## 🧑‍🍳 Instructions")[1] || ""}
         ))}
       </div>
 
-      {/* ========= LOADER ========= */}
+      {/* Loader */}
       {loading && (
         <div className="cooking-loader">
           <span>🍳 Cooking your {persons}-serving recipe…</span>
         </div>
       )}
 
-      {/* ========= RECIPE OUTPUT ========= */}
+      {/* RECIPE CARD OUTPUT */}
       <div className="mealprep-output">
         {recipe && (
-          <div className="recipe-card-box">
+          <div
+            className="recipe-card-box"
+            id="mealprep-card"
+            style={{ position: "relative" }}
+          >
+            {/* PDF DOWNLOAD ICON */}
+            <button
+              className="recipe-download-icon"
+              onClick={downloadRecipeCardPDF}
+            >
+              <Download size={18} />
+            </button>
+
             {!editingIngredients ? (
               <>
                 <ReactMarkdown children={recipe} remarkPlugins={[remarkGfm]} />
@@ -195,9 +215,9 @@ ${recipe.split("## 🧑‍🍳 Instructions")[1] || ""}
         )}
       </div>
 
-      {/* ========= INPUT BAR (BOTTOM) ========= */}
+      {/* INPUT BAR */}
       <div className="mealprep-inputbar">
-        {/* SERVINGS */}
+        {/* Servings */}
         <div className="servings-box">
           <span>Servings</span>
           <div className="servings-buttons">
@@ -207,7 +227,7 @@ ${recipe.split("## 🧑‍🍳 Instructions")[1] || ""}
           </div>
         </div>
 
-        {/* INPUT BAR */}
+        {/* Prompt Input */}
         <div className="input-container">
           <input
             type="text"
@@ -217,7 +237,9 @@ ${recipe.split("## 🧑‍🍳 Instructions")[1] || ""}
             onKeyDown={(e) => e.key === "Enter" && generateRecipe()}
           />
 
-          <button onClick={generateRecipe}>Generate</button>
+          <button onClick={generateRecipe}>
+            {loading ? "Cooking…" : "Generate"}
+          </button>
         </div>
       </div>
     </div>

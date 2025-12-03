@@ -1,48 +1,51 @@
 import React, { useState } from "react";
 import "./Planner.css";
 
+// PDF Tools
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
+import { Download } from "lucide-react";
+
 export default function Planner() {
   const [mode, setMode] = useState("Daily");
   const [groceries, setGroceries] = useState("");
-  const [plan, setPlan] = useState("");
+  const [daysData, setDaysData] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // 📌 Generate Plan Using AI
-  async function generatePlan() {
-    if (!groceries.trim()) {
-      alert("Please enter groceries before generating a plan.");
-      return;
-    }
+  // 🔹 DOWNLOAD A SPECIFIC DAY CARD
+  async function downloadPlanCardPDF(dayIndex) {
+    const element = document.getElementById(`planner-card-${dayIndex}`);
+    if (!element) return alert("No plan card found!");
 
-    setLoading(true);
-    setPlan("");
+    const canvas = await html2canvas(element, { scale: 2 });
+    const img = canvas.toDataURL("image/png");
 
-    try {
-      const res = await fetch("http://localhost:5000/api/ai/planner", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mode, groceries }),
-      });
+    const pdf = new jsPDF("p", "mm", "a4");
+    const width = pdf.internal.pageSize.getWidth();
+    const height = (canvas.height * width) / canvas.width;
 
-      const data = await res.json();
-      setPlan(data.plan || "No plan generated.");
-    } catch (err) {
-      console.error("Planner Error:", err);
-      setPlan("Error generating plan.");
-    }
-
-    setLoading(false);
+    pdf.addImage(img, "PNG", 0, 0, width, height);
+    pdf.save(`${mode}-mealplan-day${dayIndex + 1}.pdf`);
   }
 
-  // 📌 Save Plan to MONGODB (NOT localStorage)
-  async function savePlan() {
-    if (!plan.trim()) return alert("Nothing to save!");
+  // 🔹 SAVE ENTIRE PLAN (ONE BUTTON ONLY)
+  async function saveFullPlan() {
+    if (daysData.length === 0)
+      return alert("No meal plan to save!");
 
     const token = localStorage.getItem("token");
     if (!token) {
       alert("Please login to save your meal plan.");
       return;
     }
+
+    // Combine all day plans into one text
+    const fullPlan = daysData
+      .map(
+        (d, i) =>
+          `Day ${i + 1}\nBreakfast:\n${d.breakfast}\n\nLunch:\n${d.lunch}\n\nDinner:\n${d.dinner}`
+      )
+      .join("\n\n---------------------------------\n\n");
 
     try {
       const res = await fetch("http://localhost:5000/api/recipes/save", {
@@ -52,9 +55,9 @@ export default function Planner() {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          title: `${mode} Meal Plan`,  // Example: "Daily Meal Plan"
+          title: `${mode} Meal Plan`,
           cuisine: "Planner",
-          fullRecipe: plan,
+          fullRecipe: fullPlan,
           source: "planner",
         }),
       });
@@ -62,15 +65,85 @@ export default function Planner() {
       const data = await res.json();
 
       if (data.success) {
-        alert("Meal plan saved successfully!");
-        window.location.href = "/saved"; // Redirect to Saved Recipes
+        alert("Meal plan saved!");
+        window.location.href = "/saved";
       } else {
-        alert("Failed to save plan: " + (data.message || "Unknown error"));
+        alert("Failed: " + (data.message || "Unknown error"));
       }
     } catch (err) {
-      console.error("Save Plan Error:", err);
       alert("Error saving plan.");
     }
+  }
+
+  // 🔹 PARSE MEALS FROM TEXT
+  function parseMeals(text) {
+    const breakfast = text.match(/Breakfast[:\-]*([\s\S]*?)(?=Lunch|Dinner|$)/i);
+    const lunch = text.match(/Lunch[:\-]*([\s\S]*?)(?=Dinner|$)/i);
+    const dinner = text.match(/Dinner[:\-]*([\s\S]*$)/i);
+
+    return {
+      breakfast: breakfast ? breakfast[1].trim() : "No breakfast found",
+      lunch: lunch ? lunch[1].trim() : "No lunch found",
+      dinner: dinner ? dinner[1].trim() : "No dinner found",
+    };
+  }
+
+  // 🔹 SPLIT INTO DAY BLOCKS
+  function parseDayBlocks(rawText, expectedDays) {
+    const dayRegex =
+      /(Day\s*\d+[:\-\s]*)([\s\S]*?)(?=Day\s*\d+[:\-\s]*|$)/gi;
+
+    const blocks = [...rawText.matchAll(dayRegex)].map((m) =>
+      m[2].trim()
+    );
+
+    if (blocks.length === 0) {
+      return Array.from({ length: expectedDays }, () => rawText);
+    }
+
+    while (blocks.length < expectedDays) blocks.push(blocks[0]);
+
+    return blocks.slice(0, expectedDays);
+  }
+
+  // 🔹 GENERATE PLAN
+  async function generatePlan() {
+    if (!groceries.trim()) return alert("Enter groceries");
+
+    setLoading(true);
+    setDaysData([]);
+
+    const days =
+      mode === "Monthly" ? 30 : mode === "Weekly" ? 7 : 1;
+
+    try {
+      const res = await fetch("http://localhost:5000/api/ai/planner", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mode, groceries, days }),
+      });
+
+      const data = await res.json();
+      const raw = data.plan || "";
+
+      const blocks = parseDayBlocks(raw, days);
+
+      const parsedDays = blocks.map((blk, i) => {
+        const meals = parseMeals(blk);
+        return {
+          day: i + 1,
+          breakfast: meals.breakfast,
+          lunch: meals.lunch,
+          dinner: meals.dinner,
+        };
+      });
+
+      setDaysData(parsedDays);
+    } catch (err) {
+      alert("Error generating");
+    }
+
+    setLoading(false);
   }
 
   return (
@@ -79,17 +152,20 @@ export default function Planner() {
 
       <div className="planner-container">
 
-        {/* 🔸 Planning Mode Selector */}
+        {/* MODE SELECTOR */}
         <div className="planner-input-group">
           <label>Select Planning Mode:</label>
-          <select value={mode} onChange={(e) => setMode(e.target.value)}>
+          <select
+            value={mode}
+            onChange={(e) => setMode(e.target.value)}
+          >
             <option value="Daily">Daily</option>
             <option value="Weekly">Weekly</option>
             <option value="Monthly">Monthly</option>
           </select>
         </div>
 
-        {/* 🔸 Groceries Input */}
+        {/* GROCERY INPUT */}
         <div className="planner-input-group">
           <label>Enter groceries you have:</label>
           <textarea
@@ -100,20 +176,58 @@ export default function Planner() {
           ></textarea>
         </div>
 
-        {/* 🔸 Generate Button */}
+        {/* GENERATE BUTTON */}
         <button className="planner-btn" onClick={generatePlan}>
-          {loading ? "Generating..." : "Create Plan From Groceries"}
+          {loading ? "Generating..." : "Create Plan"}
         </button>
 
-        {/* 🔸 Output Section */}
-        {plan && (
-          <div className="planner-output">
-            <pre>{plan}</pre>
+        {/* DAY CARDS */}
+        {daysData.length > 0 && (
+          <>
+            <div className="planner-days-grid">
+              {daysData.map((day, idx) => (
+                <div
+                  key={idx}
+                  id={`planner-card-${idx}`}
+                  className="planner-day-card"
+                  style={{ position: "relative" }}
+                >
+                  {/* PDF ICON */}
+                  <button
+                    className="recipe-download-icon"
+                    onClick={() => downloadPlanCardPDF(idx)}
+                  >
+                    <Download size={18} />
+                  </button>
 
-            <button className="save-plan-btn" onClick={savePlan}>
-              Save Plan
+                  <h3>Day {day.day}</h3>
+
+                  <div className="planner-meal">
+                    <h4>Breakfast</h4>
+                    <pre>{day.breakfast}</pre>
+                  </div>
+
+                  <div className="planner-meal">
+                    <h4>Lunch</h4>
+                    <pre>{day.lunch}</pre>
+                  </div>
+
+                  <div className="planner-meal">
+                    <h4>Dinner</h4>
+                    <pre>{day.dinner}</pre>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* ⭐ ONLY ONE SAVE BUTTON HERE */}
+            <button
+              className="save-plan-btn"
+              onClick={saveFullPlan}
+            >
+              Save Full Plan
             </button>
-          </div>
+          </>
         )}
       </div>
     </div>

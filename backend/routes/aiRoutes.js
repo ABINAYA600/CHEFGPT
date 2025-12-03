@@ -6,7 +6,7 @@ const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
 /* ------------------------------------------------------
-   1) ADVANCED RECIPE GENERATOR WITH SERVINGS SCALING
+   1) ADVANCED RECIPE GENERATOR WITH REAL SERVING SCALING
 ------------------------------------------------------- */
 router.post("/recipe", async (req, res) => {
   try {
@@ -14,13 +14,46 @@ router.post("/recipe", async (req, res) => {
 
     const systemMessage = `
 You are ChefGPT.
-Generate a clean recipe.
-Use exact numeric quantities.
+You ALWAYS obey the user's serving count.
+You NEVER guess ingredients.
+You ALWAYS apply real math when scaling quantities.
+Base recipe is ALWAYS for 2 servings.
+`;
+
+    const userMessage = `
+Create a recipe for "${prompt}" scaled to EXACTLY **${servings} servings**.
+
+📌 **SCALING RULE (VERY IMPORTANT)**  
+Assume ORIGINAL recipe = 2 servings.
+
+Scale each ingredient like this:
+
+scaled_quantity = original_quantity × (${servings} / 2)
+
+NEVER approximate. NEVER write ranges.  
+Only use numbers and correct units.
+
+📌 **OUTPUT FORMAT (MUST FOLLOW EXACTLY)**
+
+Title: <Dish Name>
+
+Servings: ${servings} people
+
+Ingredients:
+- <scaled quantity> <ingredient>
+- <scaled quantity> <ingredient>
+(Every item MUST be mathematically scaled)
+
+Instructions:
+1. Step 1
+2. Step 2
+3. Step 3
+NO mention of "scaling" in instructions.
 `;
 
     const result = await chatCompletion([
       { role: "system", content: systemMessage },
-      { role: "user", content: `${prompt}` }
+      { role: "user", content: userMessage }
     ]);
 
     const recipeText = result.choices?.[0]?.message?.content || "";
@@ -66,7 +99,7 @@ router.post("/cuisineDoubt", async (req, res) => {
 });
 
 /* ------------------------------------------------------ 
-   3) TEXT-ONLY GENERAL DOUBTS (RESTORED)
+   3) GENERAL COOKING DOUBTS
 ------------------------------------------------------- */
 router.post("/doubt", async (req, res) => {
   try {
@@ -118,7 +151,7 @@ Return EXACTLY 8 dishes in JSON array:
 ]
 
 NO markdown, no extra text.
-`;
+    `;
 
     const result = await chatCompletion([
       { role: "system", content: systemPrompt },
@@ -144,19 +177,36 @@ NO markdown, no extra text.
 });
 
 /* ------------------------------------------------------ 
-   5) MEAL PLANNER 
--------------------------------------------------------*/
+   5) MEAL PLANNER — CLEAN & SIMPLE
+------------------------------------------------------- */
 router.post("/planner", async (req, res) => {
   try {
-    const { groceries, mode } = req.body;
+    const { groceries, mode, days } = req.body;
 
     const prompt = `
 Using ONLY these groceries:
 ${groceries}
 
-Create a ${mode} meal plan.
-Include recipes with reasons.
-`;
+Create a ${mode} meal plan for ${days} days.
+
+Each day must have:
+- Breakfast (short dish name only)
+- Lunch (short dish name only)
+- Dinner (short dish name only)
+
+NO instructions.
+NO descriptions.
+NO paragraphs.
+
+FORMAT:
+Day 1:
+Breakfast: <name>
+Lunch: <name>
+Dinner: <name>
+
+Day 2:
+...
+    `;
 
     const result = await chatCompletion([
       { role: "system", content: "You are ChefGPT meal planning expert." },
@@ -170,9 +220,7 @@ Include recipes with reasons.
 
   } catch (err) {
     console.error("🔥 Planner Error:", err);
-    return res
-      .status(500)
-      .json({ success: false, plan: "Error generating plan." });
+    return res.status(500).json({ success: false, plan: "Error generating plan." });
   }
 });
 
