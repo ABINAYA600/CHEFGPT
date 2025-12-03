@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./CuisineDetail.css";
 
+// PDF Tools
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { Download } from "lucide-react";
@@ -26,10 +27,9 @@ export default function CuisineDetail() {
   const [query, setQuery] = useState("");
   const [bottomLoading, setBottomLoading] = useState(false);
   const [bottomOutput, setBottomOutput] = useState("");
-
   const [searchResult, setSearchResult] = useState(null);
 
-  // ⭐ Download Only the Recipe Card
+  // ⭐ DOWNLOAD ONLY THE CARD AS PDF
   const downloadCardPDF = async (cardId, fileName) => {
     const element = document.getElementById(cardId);
     if (!element) return alert("Card not found!");
@@ -45,16 +45,11 @@ export default function CuisineDetail() {
     pdf.save(`${fileName}.pdf`);
   };
 
-  // ⭐ Trending loader FIXED (ESLint-safe)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => {
-    if (cuisine) loadTrending();
-  }, [cuisine]);
-
+  // Load trending dishes
   async function loadTrending() {
     try {
       setLoadingTrending(true);
-      const res = await fetch("http://localhost:5000/api/ai/cuisineDishes", {
+      const res = await fetch("https://chefgpt-backend.onrender.com/api/ai/cuisineDishes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ cuisine: cuisine.name }),
@@ -67,14 +62,20 @@ export default function CuisineDetail() {
     }
   }
 
-  // ⭐ Modal open + fetch recipe
+  // ⭐ FIXED: ESLINT WARNING REMOVED
+ // eslint-disable-next-line react-hooks/exhaustive-deps
+useEffect(() => {
+  if (cuisine) loadTrending();
+}, [cuisine]);
+
+  // Modal fetch
   async function openModal(dish) {
     setModalOpen(true);
     setModalDish(dish);
     setModalLoading(true);
 
     try {
-      const res = await fetch("http://localhost:5000/api/ai/recipe", {
+      const res = await fetch("https://chefgpt-backend.onrender.com/api/ai/recipe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt: dish.name }),
@@ -94,7 +95,7 @@ export default function CuisineDetail() {
     if (!token) return alert("Please login first!");
 
     try {
-      const res = await fetch("http://localhost:5000/api/recipes/save", {
+      const res = await fetch("https://chefgpt-backend.onrender.com/api/recipes/save", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -119,7 +120,7 @@ export default function CuisineDetail() {
     }
   }
 
-  // ⭐ Bottom Search Input Handler
+  // Search input
   async function handleBottomSubmit() {
     if (!query.trim()) return;
 
@@ -132,7 +133,7 @@ export default function CuisineDetail() {
 
     try {
       if (isRecipe) {
-        const res = await fetch("http://localhost:5000/api/ai/recipe", {
+        const res = await fetch("https://chefgpt-backend.onrender.com/api/ai/recipe", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ prompt: query }),
@@ -146,7 +147,7 @@ export default function CuisineDetail() {
           full,
         });
       } else {
-        const res = await fetch("http://localhost:5000/api/ai/cuisineDoubt", {
+        const res = await fetch("https://chefgpt-backend.onrender.com/api/ai/cuisineDoubt", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -173,14 +174,13 @@ export default function CuisineDetail() {
         <h1 className="cd-title">{cuisine.name} Cuisine</h1>
         <p className="cd-tag">{cuisine.tagline}</p>
 
-        {/* ⭐ SEARCH RESULT CARD */}
+        {/* Search Result Card */}
         {searchResult && (
           <div
             className="cd-card"
             id="search-card"
             style={{ position: "relative" }}
           >
-            {/* PDF ICON */}
             <button
               className="recipe-download-icon"
               onClick={() =>
@@ -191,19 +191,15 @@ export default function CuisineDetail() {
             </button>
 
             <h3 className="cd-dish-title">{searchResult.name}</h3>
-
             <div className="cd-actions">
-              <button
-                className="cd-open"
-                onClick={() => openModal(searchResult)}
-              >
+              <button className="cd-open" onClick={() => openModal(searchResult)}>
                 Open
               </button>
             </div>
           </div>
         )}
 
-        {/* ⭐ TRENDING DISHES GRID */}
+        {/* Trending */}
         <div className="cd-head-row">
           <h2>Trending Dishes</h2>
           <button className="cd-refresh" onClick={loadTrending}>
@@ -219,7 +215,6 @@ export default function CuisineDetail() {
               style={{ position: "relative" }}
               key={idx}
             >
-              {/* PDF ICON */}
               <button
                 className="recipe-download-icon"
                 onClick={() =>
@@ -242,7 +237,7 @@ export default function CuisineDetail() {
         </div>
       </div>
 
-      {/* ⭐ BOTTOM Q&A SECTION */}
+      {/* Bottom Section */}
       <div className="cd-bottom">
         <div className="cd-bottom-row">
           <input
@@ -264,7 +259,7 @@ export default function CuisineDetail() {
         )}
       </div>
 
-      {/* ⭐ MODAL */}
+      {/* Modal */}
       {modalOpen && (
         <div className="cd-modal-bg" onClick={() => setModalOpen(false)}>
           <div className="cd-modal" onClick={(e) => e.stopPropagation()}>
