@@ -16,7 +16,7 @@ const Signin = () => {
 
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/auth/signin",
+        "https://chefgpt-backend.onrender.com/api/auth/signin",
         form
       );
 
@@ -57,7 +57,6 @@ const Signin = () => {
 
         <button type="submit">Sign In</button>
 
-        {/* Forgot Password Link */}
         <p
           style={{
             color: "#ddd",
@@ -71,11 +70,7 @@ const Signin = () => {
         </p>
 
         <p
-          style={{
-            color: "#ddd",
-            cursor: "pointer",
-            marginTop: "12px",
-          }}
+          style={{ color: "#ddd", cursor: "pointer", marginTop: "12px" }}
           onClick={() => navigate("/signup")}
         >
           Don't have an account? Sign Up
