@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./CuisineDetail.css";
 
@@ -29,15 +29,15 @@ export default function CuisineDetail() {
   const [bottomOutput, setBottomOutput] = useState("");
   const [searchResult, setSearchResult] = useState(null);
 
-  // ⭐ DOWNLOAD ONLY THE CARD AS PDF
+  // ⭐ DOWNLOAD CARD AS PDF
   const downloadCardPDF = async (cardId, fileName) => {
     const element = document.getElementById(cardId);
     if (!element) return alert("Card not found!");
 
     const canvas = await html2canvas(element, { scale: 2 });
     const img = canvas.toDataURL("image/png");
-    const pdf = new jsPDF("p", "mm", "a4");
 
+    const pdf = new jsPDF("p", "mm", "a4");
     const width = pdf.internal.pageSize.getWidth();
     const height = (canvas.height * width) / canvas.width;
 
@@ -45,28 +45,31 @@ export default function CuisineDetail() {
     pdf.save(`${fileName}.pdf`);
   };
 
-  // Load trending dishes
-  async function loadTrending() {
+  // ⭐ FIX – loadTrending now wrapped in useCallback (no warnings)
+  const loadTrending = useCallback(async () => {
     try {
       setLoadingTrending(true);
-      const res = await fetch("https://chefgpt-backend.onrender.com/api/ai/cuisineDishes", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cuisine: cuisine.name }),
-      });
+
+      const res = await fetch(
+        "https://chefgpt-backend.onrender.com/api/ai/cuisineDishes",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ cuisine: cuisine?.name }),
+        }
+      );
 
       const data = await res.json();
       setTrending(data.dishes || []);
     } finally {
       setLoadingTrending(false);
     }
-  }
+  }, [cuisine?.name]);
 
-  // ⭐ FIXED: ESLINT WARNING REMOVED
- // eslint-disable-next-line react-hooks/exhaustive-deps
-useEffect(() => {
-  if (cuisine) loadTrending();
-}, [cuisine]);
+  // ⭐ Correct useEffect (NO WARNING)
+  useEffect(() => {
+    if (cuisine) loadTrending();
+  }, [cuisine, loadTrending]);
 
   // Modal fetch
   async function openModal(dish) {
@@ -75,11 +78,14 @@ useEffect(() => {
     setModalLoading(true);
 
     try {
-      const res = await fetch("https://chefgpt-backend.onrender.com/api/ai/recipe", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: dish.name }),
-      });
+      const res = await fetch(
+        "https://chefgpt-backend.onrender.com/api/ai/recipe",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt: dish.name }),
+        }
+      );
 
       const data = await res.json();
       setModalRecipe(data.recipe || "No recipe available");
@@ -95,18 +101,21 @@ useEffect(() => {
     if (!token) return alert("Please login first!");
 
     try {
-      const res = await fetch("https://chefgpt-backend.onrender.com/api/recipes/save", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          title: dish.name,
-          cuisine: cuisine.name,
-          fullRecipe: modalRecipe,
-        }),
-      });
+      const res = await fetch(
+        "https://chefgpt-backend.onrender.com/api/recipes/save",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            title: dish.name,
+            cuisine: cuisine.name,
+            fullRecipe: modalRecipe,
+          }),
+        }
+      );
 
       const data = await res.json();
       if (res.ok) {
@@ -133,11 +142,14 @@ useEffect(() => {
 
     try {
       if (isRecipe) {
-        const res = await fetch("https://chefgpt-backend.onrender.com/api/ai/recipe", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ prompt: query }),
-        });
+        const res = await fetch(
+          "https://chefgpt-backend.onrender.com/api/ai/recipe",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ prompt: query }),
+          }
+        );
 
         const data = await res.json();
         const full = data.recipe || "No recipe found";
@@ -147,14 +159,17 @@ useEffect(() => {
           full,
         });
       } else {
-        const res = await fetch("https://chefgpt-backend.onrender.com/api/ai/cuisineDoubt", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            cuisine: cuisine.name,
-            question: query,
-          }),
-        });
+        const res = await fetch(
+          "https://chefgpt-backend.onrender.com/api/ai/cuisineDoubt",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              cuisine: cuisine.name,
+              question: query,
+            }),
+          }
+        );
 
         const data = await res.json();
         setBottomOutput(data.answer || "No answer found.");
