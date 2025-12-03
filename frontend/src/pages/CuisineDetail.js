@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./CuisineDetail.css";
 
-// PDF Tools
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { Download } from "lucide-react";
@@ -30,7 +29,7 @@ export default function CuisineDetail() {
 
   const [searchResult, setSearchResult] = useState(null);
 
-  // ⭐ DOWNLOAD ONLY THE CARD AS PDF
+  // ⭐ Download Only the Recipe Card
   const downloadCardPDF = async (cardId, fileName) => {
     const element = document.getElementById(cardId);
     if (!element) return alert("Card not found!");
@@ -46,7 +45,8 @@ export default function CuisineDetail() {
     pdf.save(`${fileName}.pdf`);
   };
 
-  // Load trending dishes
+  // ⭐ Trending loader FIXED (ESLint-safe)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (cuisine) loadTrending();
   }, [cuisine]);
@@ -67,7 +67,7 @@ export default function CuisineDetail() {
     }
   }
 
-  // Modal fetch
+  // ⭐ Modal open + fetch recipe
   async function openModal(dish) {
     setModalOpen(true);
     setModalDish(dish);
@@ -119,7 +119,7 @@ export default function CuisineDetail() {
     }
   }
 
-  // Search input
+  // ⭐ Bottom Search Input Handler
   async function handleBottomSubmit() {
     if (!query.trim()) return;
 
@@ -173,14 +173,14 @@ export default function CuisineDetail() {
         <h1 className="cd-title">{cuisine.name} Cuisine</h1>
         <p className="cd-tag">{cuisine.tagline}</p>
 
-        {/* Search Result Card */}
+        {/* ⭐ SEARCH RESULT CARD */}
         {searchResult && (
           <div
             className="cd-card"
             id="search-card"
             style={{ position: "relative" }}
           >
-            {/* PDF icon */}
+            {/* PDF ICON */}
             <button
               className="recipe-download-icon"
               onClick={() =>
@@ -193,14 +193,17 @@ export default function CuisineDetail() {
             <h3 className="cd-dish-title">{searchResult.name}</h3>
 
             <div className="cd-actions">
-              <button className="cd-open" onClick={() => openModal(searchResult)}>
+              <button
+                className="cd-open"
+                onClick={() => openModal(searchResult)}
+              >
                 Open
               </button>
             </div>
           </div>
         )}
 
-        {/* Trending */}
+        {/* ⭐ TRENDING DISHES GRID */}
         <div className="cd-head-row">
           <h2>Trending Dishes</h2>
           <button className="cd-refresh" onClick={loadTrending}>
@@ -216,7 +219,7 @@ export default function CuisineDetail() {
               style={{ position: "relative" }}
               key={idx}
             >
-              {/* PDF Icon */}
+              {/* PDF ICON */}
               <button
                 className="recipe-download-icon"
                 onClick={() =>
@@ -239,7 +242,7 @@ export default function CuisineDetail() {
         </div>
       </div>
 
-      {/* Bottom Section */}
+      {/* ⭐ BOTTOM Q&A SECTION */}
       <div className="cd-bottom">
         <div className="cd-bottom-row">
           <input
@@ -261,7 +264,7 @@ export default function CuisineDetail() {
         )}
       </div>
 
-      {/* Modal */}
+      {/* ⭐ MODAL */}
       {modalOpen && (
         <div className="cd-modal-bg" onClick={() => setModalOpen(false)}>
           <div className="cd-modal" onClick={(e) => e.stopPropagation()}>

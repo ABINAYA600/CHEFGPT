@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./Planner.css";
 
-// PDF Tools
+// PDF tools
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { Download } from "lucide-react";
@@ -12,7 +12,9 @@ export default function Planner() {
   const [daysData, setDaysData] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // 🔹 DOWNLOAD A SPECIFIC DAY CARD
+  /* ------------------------------------------------------
+      DOWNLOAD SPECIFIC DAY CARD AS PDF
+  --------------------------------------------------------- */
   async function downloadPlanCardPDF(dayIndex) {
     const element = document.getElementById(`planner-card-${dayIndex}`);
     if (!element) return alert("No plan card found!");
@@ -28,10 +30,11 @@ export default function Planner() {
     pdf.save(`${mode}-mealplan-day${dayIndex + 1}.pdf`);
   }
 
-  // 🔹 SAVE ENTIRE PLAN (ONE BUTTON ONLY)
+  /* ------------------------------------------------------
+      SAVE ENTIRE PLAN (ONE BUTTON ONLY)
+  --------------------------------------------------------- */
   async function saveFullPlan() {
-    if (daysData.length === 0)
-      return alert("No meal plan to save!");
+    if (daysData.length === 0) return alert("No meal plan to save!");
 
     const token = localStorage.getItem("token");
     if (!token) {
@@ -39,7 +42,6 @@ export default function Planner() {
       return;
     }
 
-    // Combine all day plans into one text
     const fullPlan = daysData
       .map(
         (d, i) =>
@@ -75,11 +77,16 @@ export default function Planner() {
     }
   }
 
-  // 🔹 PARSE MEALS FROM TEXT
+  /* ------------------------------------------------------
+      PARSE INDIVIDUAL MEALS FROM TEXT
+      (ESLint SAFE — FIXED)
+  --------------------------------------------------------- */
   function parseMeals(text) {
-    const breakfast = text.match(/Breakfast[:\-]*([\s\S]*?)(?=Lunch|Dinner|$)/i);
-    const lunch = text.match(/Lunch[:\-]*([\s\S]*?)(?=Dinner|$)/i);
-    const dinner = text.match(/Dinner[:\-]*([\s\S]*$)/i);
+    const breakfast = text.match(
+      /Breakfast[:-]*([\s\S]*?)(?=Lunch|Dinner|$)/i
+    );
+    const lunch = text.match(/Lunch[:-]*([\s\S]*?)(?=Dinner|$)/i);
+    const dinner = text.match(/Dinner[:-]*([\s\S]*$)/i);
 
     return {
       breakfast: breakfast ? breakfast[1].trim() : "No breakfast found",
@@ -88,10 +95,13 @@ export default function Planner() {
     };
   }
 
-  // 🔹 SPLIT INTO DAY BLOCKS
+  /* ------------------------------------------------------
+      PARSE DAYS FROM RAW AI TEXT
+      (ESLint SAFE — FIXED)
+  --------------------------------------------------------- */
   function parseDayBlocks(rawText, expectedDays) {
     const dayRegex =
-      /(Day\s*\d+[:\-\s]*)([\s\S]*?)(?=Day\s*\d+[:\-\s]*|$)/gi;
+      /(Day\s*\d+[:-\s]*)([\s\S]*?)(?=Day\s*\d+[:-\s]*|$)/gi;
 
     const blocks = [...rawText.matchAll(dayRegex)].map((m) =>
       m[2].trim()
@@ -106,7 +116,9 @@ export default function Planner() {
     return blocks.slice(0, expectedDays);
   }
 
-  // 🔹 GENERATE PLAN
+  /* ------------------------------------------------------
+      GENERATE PLAN (Daily, Weekly, Monthly)
+  --------------------------------------------------------- */
   async function generatePlan() {
     if (!groceries.trim()) return alert("Enter groceries");
 
@@ -146,12 +158,14 @@ export default function Planner() {
     setLoading(false);
   }
 
+  /* ------------------------------------------------------
+      UI
+  --------------------------------------------------------- */
   return (
     <div className="planner-page">
       <h1 className="planner-title">ChefGPT – Smart Meal Planner</h1>
 
       <div className="planner-container">
-
         {/* MODE SELECTOR */}
         <div className="planner-input-group">
           <label>Select Planning Mode:</label>
@@ -220,7 +234,7 @@ export default function Planner() {
               ))}
             </div>
 
-            {/* ⭐ ONLY ONE SAVE BUTTON HERE */}
+            {/* SINGLE SAVE BUTTON */}
             <button
               className="save-plan-btn"
               onClick={saveFullPlan}
